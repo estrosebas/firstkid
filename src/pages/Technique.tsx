@@ -274,11 +274,10 @@ function RCPDetector({ onClose }: { onClose: () => void }) {
           <div className="camera-container">
             {/* Camera selector */}
             {devices.length > 1 && (
-              <div style={{ marginBottom: 8, textAlign: "center" }}>
-                <label style={{ marginRight: 8, color: "#334155" }}>
-                  Cámara:
-                </label>
+              <div className="camera-controls">
+                <div className="camera-label">Cámara:</div>
                 <select
+                  className="camera-selector"
                   value={selectedDeviceId ?? ""}
                   onChange={(e) => {
                     const id = e.target.value;
@@ -474,11 +473,10 @@ function SkinDetector({ onClose }: { onClose: () => void }) {
         <div className="rcp-detector-content">
           <div className="camera-container">
             {devices.length > 1 && (
-              <div style={{ marginBottom: 8, textAlign: "center" }}>
-                <label style={{ marginRight: 8, color: "#334155" }}>
-                  Cámara:
-                </label>
+              <div className="camera-controls">
+                <div className="camera-label">Cámara:</div>
                 <select
+                  className="camera-selector"
                   value={selectedDeviceId ?? ""}
                   onChange={(e) => {
                     const id = e.target.value;
@@ -681,6 +679,7 @@ function NoseDetector({ onClose }: { onClose: () => void }) {
     }
     setStatus("Cambiando cámara...");
     await initializeCamera(deviceId);
+    setSelectedDeviceId(deviceId);
   };
 
   return (
@@ -695,21 +694,11 @@ function NoseDetector({ onClose }: { onClose: () => void }) {
 
         <div className="rcp-detector-content">
           <div className="camera-container">
-            <video
-              ref={videoRef}
-              className="camera-video"
-              autoPlay
-              playsInline
-              muted
-              style={{ width: 320, height: 240 }}
-            />
-
             {devices.length > 1 && (
-              <div style={{ marginBottom: 8, textAlign: "center" }}>
-                <label style={{ marginRight: 8, color: "#334155" }}>
-                  Cámara:
-                </label>
+              <div className="camera-controls">
+                <div className="camera-label">Cámara:</div>
                 <select
+                  className="camera-selector"
                   value={selectedDeviceId || ""}
                   onChange={(e) => switchCamera(e.target.value)}
                 >
@@ -721,6 +710,14 @@ function NoseDetector({ onClose }: { onClose: () => void }) {
                 </select>
               </div>
             )}
+
+            <video
+              ref={videoRef}
+              className="camera-video"
+              autoPlay
+              playsInline
+              muted
+            />
 
             <canvas ref={canvasRef} style={{ display: "none" }} />
           </div>
