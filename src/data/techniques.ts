@@ -108,6 +108,40 @@ const techniques: Record<string, any> = {
       },
     ],
   },
+  hemo: {
+    slug: "hemo",
+    title: "Detección de hemorragia nasal",
+    hero: hemoImg,
+    intro:
+      "Utiliza la cámara para identificar si hay presencia de sangre en la nariz o si está sana.",
+    action: {
+      label: "Iniciar práctica",
+      href: "#start-nose-practice",
+    },
+    howToApply: {
+      title: "¿Cómo evaluarlo?",
+      reasons: ["Traumatismo nasal", "Epistaxis", "Lesiones faciales"],
+      symptomsTitle: "Signos visuales:",
+      symptoms: [
+        {
+          id: "n1",
+          img: hemoImg,
+          label: "Sangrado nasal",
+          details: "Presencia visible de sangre en las fosas nasales o alrededor de la nariz.",
+        },
+        {
+          id: "n2",
+          img: hemoImg,
+          label: "Congestión",
+          details: "Hinchazón o bloqueo de las vías nasales que puede acompañar al sangrado.",
+        },
+      ],
+    },
+    steps: [
+      { title: "Posicionamiento", body: "Mantén la cámara a una distancia adecuada de la nariz con buena iluminación." },
+      { title: "Iniciar análisis", body: "Pulsa 'Iniciar práctica' para comenzar la detección automática." },
+    ],
+  },
 };
 
 export default techniques;

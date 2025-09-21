@@ -3,6 +3,9 @@ import { useParams } from "react-router-dom";
 import techniques from "../data/techniques";
 import "../styles/technique.css";
 
+// TensorFlow.js is loaded via CDN in index.html; declare global for TypeScript
+declare const tf: any;
+
 // RCP Detection Component
 function RCPDetector({ onClose }: { onClose: () => void }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -550,11 +553,205 @@ function YouTubeThumb({ url, title }: { url: string; title: string }) {
   );
 }
 
+// Nose Bleeding Detection Component
+function NoseDetector({ onClose }: { onClose: () => void }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [status, setStatus] = useState("Iniciando cámara...");
+  const [result, setResult] = useState("");
+  const intervalRef = useRef<number | null>(null);
+  const modelRef = useRef<any>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
+  const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null);
+
+  const loadModel = async () => {
+    try {
+      setStatus("Cargando modelo de hemorragia nasal...");
+      // @ts-ignore (global tf injected via script)
+      // user-provided model folder uses underscore in public: tfjs_model_nose
+      modelRef.current = await tf.loadLayersModel(
+        "/tfjs_model-nose/model.json"
+      );
+      setStatus("Modelo cargado, iniciando cámara...");
+    } catch (e) {
+      console.error("Error cargando modelo de nariz:", e);
+      setStatus("❌ No se pudo cargar el modelo de hemorragia nasal");
+    }
+  };
+
+  const initializeCamera = async (deviceId?: string | null) => {
+    try {
+      // get stream
+      const videoConstraints: any = { width: 640, height: 480 };
+      if (deviceId) videoConstraints.deviceId = { exact: deviceId };
+      else videoConstraints.facingMode = { ideal: "environment" };
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: videoConstraints,
+      });
+      streamRef.current = stream;
+
+      try {
+        const all = await navigator.mediaDevices.enumerateDevices();
+        setDevices(all.filter((d) => d.kind === "videoinput"));
+        const track = stream.getVideoTracks()[0];
+        // @ts-ignore
+        const settings = track.getSettings ? track.getSettings() : {};
+        if (settings && settings.deviceId)
+          setSelectedDeviceId(settings.deviceId as string);
+      } catch (e) {
+        console.warn("No se pudieron enumerar dispositivos:", e);
+      }
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = streamRef.current;
+        videoRef.current.play();
+      }
+
+      setStatus("✅ Listo — analizando nariz en vivo");
+
+      // Start interval: capture every 1s
+      intervalRef.current = window.setInterval(async () => {
+        if (!videoRef.current || !canvasRef.current || !modelRef.current)
+          return;
+        const off = canvasRef.current;
+        const v = videoRef.current;
+        const ctx = off.getContext("2d");
+        if (!ctx) return;
+        // draw video frame to offscreen canvas sized to model input
+        off.width = 224;
+        off.height = 224;
+        // draw centered/resized
+        ctx.drawImage(v, 0, 0, off.width, off.height);
+
+        try {
+          // @ts-ignore
+          const imgTensor = tf.browser
+            .fromPixels(off)
+            .toFloat()
+            .div(tf.scalar(255))
+            .expandDims(0);
+          // model predicts probability of bleeding class in [0,1]
+          const pred = await modelRef.current.predict(imgTensor).data();
+          const p = pred[0];
+          if (p > 0.5) {
+            setResult(`🔴 Nariz con sangre (${(p * 100).toFixed(0)}%)`);
+          } else {
+            setResult(
+              `🟢 Nariz sana (${((1 - p) * 100).toFixed(0)}% confianza)`
+            );
+          }
+          // dispose
+          // @ts-ignore
+          imgTensor.dispose && imgTensor.dispose();
+        } catch (e) {
+          console.error("Error en predicción de nariz:", e);
+        }
+      }, 1000);
+    } catch (e) {
+      console.error("Error inicializando cámara (nariz):", e);
+      setStatus("❌ Error al acceder a la cámara");
+    }
+  };
+
+  useEffect(() => {
+    loadModel().then(() => initializeCamera(selectedDeviceId));
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((t) => t.stop());
+        streamRef.current = null;
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const switchCamera = async (deviceId: string) => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    }
+    setStatus("Cambiando cámara...");
+    await initializeCamera(deviceId);
+  };
+
+  return (
+    <div className="rcp-detector-overlay">
+      <div className="rcp-detector-modal">
+        <div className="rcp-detector-header">
+          <h3>🩸 Detección de Hemorragia Nasal</h3>
+          <button className="close-btn" onClick={onClose}>
+            ×
+          </button>
+        </div>
+
+        <div className="rcp-detector-content">
+          <div className="camera-container">
+            <video
+              ref={videoRef}
+              className="camera-video"
+              autoPlay
+              playsInline
+              muted
+              style={{ width: 320, height: 240 }}
+            />
+
+            {devices.length > 1 && (
+              <div style={{ marginBottom: 8, textAlign: "center" }}>
+                <label style={{ marginRight: 8, color: "#334155" }}>
+                  Cámara:
+                </label>
+                <select
+                  value={selectedDeviceId || ""}
+                  onChange={(e) => switchCamera(e.target.value)}
+                >
+                  {devices.map((device) => (
+                    <option key={device.deviceId} value={device.deviceId}>
+                      {device.label || `Cámara ${device.deviceId.slice(0, 5)}`}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            <canvas ref={canvasRef} style={{ display: "none" }} />
+          </div>
+
+          <div className="detection-status">
+            <div className="status-text">{status}</div>
+            <div className="detection-result">{result}</div>
+          </div>
+
+          <div className="detection-info">
+            <p>
+              🩸 La cámara analiza cada segundo si hay signos de hemorragia
+              nasal.
+            </p>
+            <p>
+              💡 Posiciona la nariz cerca de la cámara con buena iluminación
+              para mejores resultados.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Technique() {
   const { slug } = useParams();
   const tech = slug ? techniques[slug] : null;
   const [showRCPDetector, setShowRCPDetector] = useState(false);
   const [showSkinDetector, setShowSkinDetector] = useState(false);
+  const [showNoseDetector, setShowNoseDetector] = useState(false);
 
   if (!tech) {
     return (
@@ -566,6 +763,7 @@ export default function Technique() {
   }
 
   const handleStartPractice = () => {
+    console.log("handleStartPractice called, slug=", slug);
     if (slug === "rcp") {
       setShowRCPDetector(true);
       return;
@@ -573,6 +771,11 @@ export default function Technique() {
 
     if (slug === "quema") {
       setShowSkinDetector(true);
+      return;
+    }
+
+    if (slug === "hemo") {
+      setShowNoseDetector(true);
       return;
     }
 
@@ -645,6 +848,11 @@ export default function Technique() {
       {/* Skin Detector Modal */}
       {showSkinDetector && (
         <SkinDetector onClose={() => setShowSkinDetector(false)} />
+      )}
+
+      {/* Nose Detector Modal */}
+      {showNoseDetector && (
+        <NoseDetector onClose={() => setShowNoseDetector(false)} />
       )}
     </div>
   );

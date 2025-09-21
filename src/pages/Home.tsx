@@ -19,7 +19,7 @@ export default function Home() {
     { img: rbabImg, label: "Respiración Boca a Boca" },
     { img: maniobraImg, label: "Maniobra de Heimlich" },
     { img: rbanImg, label: "Respiración Boca a Nariz" },
-    { img: hemoImg, label: "Hemorragia nasal" },
+    { img: hemoImg, label: "Hemorragia nasal", slug: "hemo" },
     { img: quemaImg, label: "Quemaduras", slug: "quema" },
   ];
 
