@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">FirstKid</string>
+    <string name="title_activity_main">FirstKid</string>
+    <string name="package_name">com.firstkid.app</string>
+    <string name="custom_url_scheme">com.firstkid.app</string>
+</resources>

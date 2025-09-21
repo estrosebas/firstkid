@@ -1,0 +1,344 @@
+.tech-hero {
+  text-align: center;
+  padding: 12px 0;
+}
+.tech-hero h1 {
+  margin: 10px 0 6px;
+}
+.tech-hero p {
+  color: #555;
+}
+.tech-steps {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.tech-step {
+  background: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+}
+.tech-step h3 {
+  margin: 0 0 6px;
+}
+
+/* center title under video */
+.title-center {
+  text-align: center;
+  margin: 12px 0;
+}
+
+/* collapsible */
+.collapsible {
+  margin: 12px 0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+.collapsible-toggle {
+  width: 100%;
+  text-align: left;
+  padding: 12px 16px;
+  background: linear-gradient(180deg, #e6f6fb, #dff2f6);
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+}
+.collapsible-body {
+  padding: 12px 16px 18px;
+}
+
+.symptoms-title {
+  margin-top: 12px;
+}
+
+.symptom-row {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+
+/* flip card */
+.symptom-card {
+  width: 140px;
+  height: 160px;
+  perspective: 1000px;
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+.symptom-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+}
+.symptom-card.flipped .symptom-card-inner {
+  transform: rotateY(180deg);
+}
+.symptom-front,
+.symptom-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.symptom-front img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+.symptom-front .symptom-label {
+  margin-top: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  text-align: center;
+}
+.symptom-back {
+  transform: rotateY(180deg);
+  background: #fafafa;
+  padding: 12px;
+  justify-content: center;
+}
+.symptom-details {
+  font-size: 13px;
+  color: #444;
+}
+
+/* sticky action button */
+.sticky-action {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  background: linear-gradient(180deg, #ff6b6b, #ff3b3b);
+  color: white;
+  padding: 14px 18px;
+  border-radius: 28px;
+  box-shadow: 0 8px 26px rgba(255, 59, 59, 0.28);
+  font-weight: 700;
+  text-decoration: none;
+  z-index: 999;
+}
+
+/* New styles for Figma-like technique page */
+.technique-page {
+  padding-bottom: 100px; /* space for sticky action */
+}
+
+.video-wrap {
+  padding: 12px 0 6px;
+}
+.video-link {
+  display: block;
+  text-decoration: none;
+}
+.video-thumb {
+  width: 100%;
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 12px;
+  position: relative;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+.video-play {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 36px;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+.video-caption {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #333;
+}
+
+.tech-meta {
+  margin-top: 12px;
+}
+.tech-hero {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.tech-hero img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+.tech-info h1 {
+  margin: 0 0 6px;
+  font-size: 20px;
+}
+.tech-info .intro {
+  margin: 0;
+  color: #444;
+}
+.meta-row {
+  margin-top: 8px;
+  color: #666;
+  font-size: 13px;
+}
+
+/* sticky action button */
+.sticky-action {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  background: linear-gradient(180deg, #ff6b6b, #ff3b3b);
+  color: white;
+  padding: 14px 18px;
+  border-radius: 28px;
+  box-shadow: 0 8px 26px rgba(255, 59, 59, 0.28);
+  font-weight: 700;
+  text-decoration: none;
+  z-index: 999;
+}
+
+@media (min-width: 700px) {
+  .video-thumb {
+    height: 320px;
+  }
+}
+
+/* RCP Detector Styles */
+.rcp-detector-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.rcp-detector-modal {
+  background: white;
+  border-radius: 12px;
+  padding: 0;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.rcp-detector-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: linear-gradient(90deg, #cc0033 0%, #0097b2 100%);
+  color: white;
+}
+
+.rcp-detector-header h3 {
+  margin: 0;
+  font-size: 1.2em;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+}
+
+.rcp-detector-content {
+  padding: 20px;
+  text-align: center;
+}
+
+.camera-container {
+  margin-bottom: 16px;
+}
+
+.camera-video {
+  width: 100%;
+  height: 420px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 3px solid rgba(0, 0, 0, 0.12);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.25);
+  background: #000;
+}
+
+.detection-status {
+  margin: 16px 0;
+}
+
+.status-text {
+  font-size: 1.15em;
+  color: #334155;
+  margin-bottom: 8px;
+}
+
+.detection-result {
+  font-size: 1.25em;
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #ecfeff, #eff6ff);
+  color: #0369a1;
+  display: inline-block;
+}
+
+.detection-info {
+  margin-top: 16px;
+  text-align: left;
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 8px;
+  border-left: 4px solid #0097b2;
+}
+
+.detection-info p {
+  margin: 8px 0;
+  color: #64748b;
+  font-size: 0.9em;
+}
+
+@media (max-width: 768px) {
+  .rcp-detector-modal {
+    margin: 10px;
+    max-width: calc(100vw - 20px);
+  }
+
+  .camera-video {
+    max-height: 250px;
+  }
+}
+
+/* Camera selector */
+.rcp-detector-content select {
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background: white;
+}
+
+.rcp-detector-content label {
+  font-weight: 600;
+}
