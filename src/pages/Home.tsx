@@ -51,7 +51,7 @@ export default function Home() {
         ))}
       </div>
 
-      <FloatingEmergency onClick={() => alert("Emergencia")} />
+      {/* <FloatingEmergency onClick={() => alert("Emergencia")} /> */}
     </div>
   );
 }
