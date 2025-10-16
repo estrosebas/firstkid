@@ -1,4 +1,4 @@
-# FirstKid
+# PocketAid
 
 Aplicación híbrida (React + Vite + TypeScript) para entrenamiento y despliegue de modelos de visión computacional orientados a primeros auxilios. La interfaz corre en web y puede empaquetarse como aplicación móvil mediante Capacitor. El proyecto contiene código de entrenamiento en Python, conversiones a TensorFlow.js y la integración cliente que ejecuta la inferencia en el dispositivo del usuario.
 
@@ -59,7 +59,7 @@ Estructura del sistema
 Cómo ejecutar el proyecto localmente (Windows PowerShell)
 
 ```powershell
-cd c:\Users\estro\Desktop\firstkid
+cd c:\Users\USER\Desktop\PocketAid
 npm install
 npm run dev
 ```
