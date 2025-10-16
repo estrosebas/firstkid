@@ -275,6 +275,14 @@
   margin-bottom: 16px;
 }
 
+.camera-container {
+  position: relative; /* so overlay canvas can be absolutely positioned */
+}
+
+.camera-container canvas {
+  display: block;
+}
+
 .camera-video {
   width: 100%;
   height: 420px;

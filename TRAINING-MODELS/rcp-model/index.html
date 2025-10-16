@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Test RCP</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <style>
+      body {
+        font-family: Arial;
+      }
+      #output {
+        margin-top: 20px;
+        font-size: 1.2em;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Sube una imagen para probar RCP</h2>
+    <input type="file" id="imageInput" accept="image/*" />
+    <div id="output"></div>
+
+    <script>
+      let model;
+      let modelLoaded = false;
+
+      // Copia los arrays desde Python
+      const mean = [
+        0.49429448, 0.45390909, -0.25525625, 0.99339057, 0.496996, 0.44511986,
+        -0.25930089, 0.99295379, 0.49869768, 0.44430399, -0.25935005,
+        0.99256293, 0.50040217, 0.44343102, -0.25945431, 0.99365517, 0.49233805,
+        0.4449678, -0.26320889, 0.99217602, 0.49077029, 0.44406809, -0.26326195,
+        0.99095407, 0.48919366, 0.44320127, -0.26335008, 0.99191973, 0.50289987,
+        0.43666979, -0.22183293, 0.99210576, 0.48789519, 0.43707621,
+        -0.23983125, 0.98998183, 0.49752272, 0.45722693, -0.23385866,
+        0.99345316, 0.49190391, 0.45686404, -0.23919828, 0.99282852, 0.51433766,
+        0.45930093, -0.17321071, 0.99674796, 0.47592721, 0.46414842,
+        -0.20031388, 0.99657971, 0.5158636, 0.54718273, -0.15943984, 0.62875116,
+        0.46678614, 0.55648218, -0.19395122, 0.67725902, 0.5125804, 0.61555421,
+        -0.18295566, 0.63319881, 0.47060535, 0.6241573, -0.2093584, 0.67324495,
+        0.51417098, 0.63061607, -0.20832473, 0.61062376, 0.46813447, 0.63918628,
+        -0.23561498, 0.64291434, 0.50999929, 0.62920484, -0.22435145,
+        0.61541729, 0.47294076, 0.63667466, -0.25032698, 0.64391246, 0.50852707,
+        0.62467316, -0.19102932, 0.60535908, 0.47499509, 0.63185268,
+        -0.21695209, 0.63113098, 0.5084692, 0.57201886, 0.00810138, 0.98258,
+        0.48173064, 0.57594679, -0.00817299, 0.98301915, 0.5212255, 0.64187125,
+        0.04690249, 0.6185649, 0.4755952, 0.65120803, 0.03035075, 0.64858401,
+        0.5121995, 0.68390333, 0.25148221, 0.54092054, 0.46793929, 0.69166187,
+        0.23175145, 0.5690702, 0.51065726, 0.6869204, 0.27211599, 0.55798809,
+        0.46637735, 0.69421359, 0.25351212, 0.57228523, 0.51201105, 0.7021043,
+        0.2392435, 0.5734732, 0.4689455, 0.71163505, 0.22280046, 0.59416799,
+      ];
+      const scale = [
+        0.18242164, 0.17713967, 0.28761227, 0.02426073, 0.18742327, 0.18349429,
+        0.28834766, 0.02307509, 0.18745969, 0.18379113, 0.28832717, 0.02386756,
+        0.1874663, 0.18416115, 0.28835843, 0.02165578, 0.18716517, 0.18383082,
+        0.28631803, 0.02359577, 0.18699092, 0.18441069, 0.28636328, 0.02738488,
+        0.18684283, 0.1850487, 0.28636204, 0.02569984, 0.1842614, 0.18638332,
+        0.28275318, 0.02736559, 0.18320868, 0.18759556, 0.27372589, 0.0358062,
+        0.17653642, 0.17269148, 0.27546907, 0.02430211, 0.17624761, 0.17320119,
+        0.27253625, 0.02541066, 0.16598914, 0.16836761, 0.29264921, 0.02154496,
+        0.1645736, 0.17200274, 0.27918642, 0.02549638, 0.16225148, 0.15633914,
+        0.31761171, 0.37631838, 0.1616178, 0.1578483, 0.3047417, 0.35474141,
+        0.17240915, 0.17734412, 0.31378021, 0.35269601, 0.17219317, 0.17793925,
+        0.31149003, 0.32325324, 0.1797583, 0.18738804, 0.33784478, 0.33908133,
+        0.17974154, 0.18795673, 0.33871304, 0.31103974, 0.1787674, 0.18629227,
+        0.33063472, 0.33585025, 0.17819433, 0.18762208, 0.3293322, 0.30987995,
+        0.1752828, 0.18225243, 0.31081003, 0.32755936, 0.17500514, 0.18328869,
+        0.30841417, 0.3001329, 0.17028886, 0.1753793, 0.11911009, 0.10620386,
+        0.17133579, 0.17640596, 0.11909012, 0.10529237, 0.17921988, 0.17358613,
+        0.24126388, 0.34255948, 0.17747427, 0.17018522, 0.25607708, 0.31560421,
+        0.22921931, 0.20177029, 0.31932421, 0.33510086, 0.22514595, 0.1933915,
+        0.32286074, 0.32579548, 0.24241537, 0.20888236, 0.33089563, 0.31492072,
+        0.23768683, 0.20058264, 0.33476898, 0.29969881, 0.2468586, 0.21774359,
+        0.36219872, 0.31192111, 0.24393693, 0.21050056, 0.3644959, 0.30421064,
+      ];
+
+      // Cargar modelo TFJS
+      async function loadModel() {
+        model = await tf.loadLayersModel("tfjs_model/model.json");
+        modelLoaded = true;
+        console.log("✅ Modelo cargado");
+      }
+      loadModel();
+
+      const pose = new Pose({
+        locateFile: (file) =>
+          `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
+      });
+      pose.setOptions({
+        modelComplexity: 1,
+        staticImageMode: true,
+        minDetectionConfidence: 0.5,
+      });
+
+      pose.onResults((results) => {
+        const outputDiv = document.getElementById("output");
+
+        if (!modelLoaded) {
+          outputDiv.innerText = "⏳ Modelo aún cargando...";
+          return;
+        }
+
+        if (!results.poseLandmarks) {
+          outputDiv.innerText = "⚠️ No se detectó pose";
+          return;
+        }
+
+        const startTime = performance.now(); // ← inicio del conteo
+
+        const keypoints = [];
+        results.poseLandmarks.forEach((lm) => {
+          keypoints.push(lm.x, lm.y, lm.z, lm.visibility);
+        });
+
+        if (keypoints.length !== 132) {
+          outputDiv.innerText = `⚠️ Keypoints incompletos (${keypoints.length}/132)`;
+          return;
+        }
+
+        const keypoints_scaled = keypoints.map(
+          (v, i) => (v - mean[i]) / scale[i]
+        );
+        const input = tf.tensor2d([keypoints_scaled]);
+        const prediction = model.predict(input);
+
+        prediction.data().then((probArr) => {
+          const prob = probArr[0];
+          const endTime = performance.now(); // ← fin del conteo
+          console.log(
+            `⏱ Tiempo de detección: ${(endTime - startTime).toFixed(2)} ms`
+          );
+
+          outputDiv.innerText =
+            prob > 0.7
+              ? `RCP detectado (${(prob * 100).toFixed(2)}%)`
+              : `No es RCP (${(prob * 100).toFixed(2)}%)`;
+        });
+      });
+
+      document.getElementById("imageInput").addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const img = new Image();
+        img.src = URL.createObjectURL(file);
+        img.onload = () => {
+          pose.send({ image: img });
+        };
+      });
+    </script>
+  </body>
+</html>

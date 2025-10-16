@@ -13,12 +13,9 @@ import quemaImg from "../assets/figma/quema.png";
 
 export default function Home() {
   const navigate = useNavigate();
-  // order based on screenshot: top-left RCP, top-right Respiración Boca a Boca, middle-left Heimlich, middle-right Boca a Nariz, bottom-left Hemorragia, bottom-right Quemaduras
+  // Mostrar solo técnicas implementadas: RCP, Hemorragia nasal y Quemaduras
   const buttons = [
     { img: rcpImg, label: "RCP", slug: "rcp" },
-    { img: rbabImg, label: "Respiración Boca a Boca" },
-    { img: maniobraImg, label: "Maniobra de Heimlich" },
-    { img: rbanImg, label: "Respiración Boca a Nariz" },
     { img: hemoImg, label: "Hemorragia nasal", slug: "hemo" },
     { img: quemaImg, label: "Quemaduras", slug: "quema" },
   ];

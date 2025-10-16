@@ -10,6 +10,7 @@ declare const tf: any;
 function RCPDetector({ onClose }: { onClose: () => void }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const drawCanvasRef = useRef<HTMLCanvasElement>(null);
   const [status, setStatus] = useState("Iniciando cámara...");
   const [detection, setDetection] = useState("");
   const [isActive, setIsActive] = useState(false);
@@ -144,6 +145,70 @@ function RCPDetector({ onClose }: { onClose: () => void }) {
             );
           }
         });
+
+        // Draw keypoints + skeleton on overlay canvas
+        try {
+          const overlay = drawCanvasRef.current;
+          const video = videoRef.current;
+          if (overlay && video && results.poseLandmarks) {
+            const ctx = overlay.getContext("2d");
+            const w = video.videoWidth || overlay.width || 640;
+            const h = video.videoHeight || overlay.height || 480;
+            overlay.width = w;
+            overlay.height = h;
+            if (ctx) {
+              ctx.clearRect(0, 0, w, h);
+              // draw skeleton lines
+              const connections: Array<[number, number]> = [
+                [11, 13],
+                [13, 15],
+                [12, 14],
+                [14, 16], // arms
+                [11, 12], // shoulders
+                [23, 24], // hips
+                [23, 25],
+                [25, 27],
+                [24, 26],
+                [26, 28], // legs
+                [11, 23],
+                [12, 24], // torso
+                [5, 6],
+                [5, 7],
+                [7, 9],
+                [6, 8],
+                [8, 10], // face/arms upper
+              ];
+
+              ctx.lineWidth = 3;
+              ctx.strokeStyle = "rgba(255,255,255,0.9)";
+              ctx.fillStyle = "rgba(0,200,150,0.95)";
+
+              const lm = results.poseLandmarks;
+              // draw lines
+              connections.forEach(([a, b]) => {
+                const A = lm[a];
+                const B = lm[b];
+                if (!A || !B) return;
+                ctx.beginPath();
+                ctx.moveTo(A.x * w, A.y * h);
+                ctx.lineTo(B.x * w, B.y * h);
+                ctx.stroke();
+              });
+
+              // draw keypoints
+              lm.forEach((p: any, idx: number) => {
+                const x = p.x * w;
+                const y = p.y * h;
+                ctx.beginPath();
+                ctx.arc(x, y, 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = "rgba(0,150,220,0.9)";
+              });
+            }
+          }
+        } catch (e) {
+          console.warn("Error dibujando keypoints:", e);
+        }
       });
 
       poseRef.current = pose;
@@ -180,6 +245,12 @@ function RCPDetector({ onClose }: { onClose: () => void }) {
       if (videoRef.current) {
         videoRef.current.srcObject = streamRef.current;
         videoRef.current.play();
+        // size overlay canvas to video container if available
+        const overlay = drawCanvasRef.current;
+        if (overlay && videoRef.current) {
+          overlay.width = videoRef.current.videoWidth || 640;
+          overlay.height = videoRef.current.videoHeight || 480;
+        }
       }
 
       setStatus("✅ Listo — mostrando resultados en vivo");
@@ -300,6 +371,18 @@ function RCPDetector({ onClose }: { onClose: () => void }) {
               muted
             />
             <canvas ref={canvasRef} style={{ display: "none" }} />
+            {/* Overlay canvas for drawing keypoints/skeleton */}
+            <canvas
+              ref={drawCanvasRef}
+              style={{
+                position: "absolute",
+                left: 0,
+                top: 0,
+                width: "100%",
+                height: "100%",
+                pointerEvents: "none",
+              }}
+            />
           </div>
 
           <div className="detection-status">
