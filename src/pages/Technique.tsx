@@ -1,10 +1,18 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import techniques from "../data/techniques";
+import { moduleService, ModuleType } from "../services/module.service";
 import "../styles/technique.css";
 
 // TensorFlow.js is loaded via CDN in index.html; declare global for TypeScript
 declare const tf: any;
+
+// Map slug to module type
+const slugToModule: Record<string, ModuleType> = {
+  rcp: "rcp",
+  quema: "burn-skins",
+  hemo: "nose",
+};
 
 // RCP Detection Component
 function RCPDetector({ onClose }: { onClose: () => void }) {
@@ -122,26 +130,30 @@ function RCPDetector({ onClose }: { onClose: () => void }) {
         const input = tf.tensor2d([keypoints_scaled]);
         const prediction = modelRef.current.predict(input);
 
-        prediction.data().then((probArr: Float32Array) => {
+        prediction.data().then(async (probArr: Float32Array) => {
           const prob = probArr[0];
+          const score = Math.round(prob * 100);
+          
+          // Save score to backend
+          try {
+            await moduleService.saveScore("rcp", score);
+            console.log(`Score saved: ${score}`);
+          } catch (error) {
+            console.error("Error saving score:", error);
+          }
+          
           // Friendlier messages
           if (prob > 0.7) {
             setDetection(
-              `¡Bien hecho! Parece que estás aplicando RCP correctamente (${(
-                prob * 100
-              ).toFixed(0)}%)`
+              `¡Bien hecho! Parece que estás aplicando RCP correctamente (${score}%)`
             );
           } else if (prob > 0.4) {
             setDetection(
-              `Casi — ajusta la postura o la fuerza y prueba de nuevo (${(
-                prob * 100
-              ).toFixed(0)}%)`
+              `Casi — ajusta la postura o la fuerza y prueba de nuevo (${score}%)`
             );
           } else {
             setDetection(
-              `Necesita práctica: intenta mejorar la posición y compresión (${(
-                prob * 100
-              ).toFixed(0)}%)`
+              `Necesita práctica: intenta mejorar la posición y compresión (${score}%)`
             );
           }
         });
@@ -487,11 +499,21 @@ function SkinDetector({ onClose }: { onClose: () => void }) {
           // model predicts probability of burned class in [0,1]
           const pred = await modelRef.current.predict(imgTensor).data();
           const p = pred[0];
+          const score = Math.round(p * 100);
+          
+          // Save score to backend
+          try {
+            await moduleService.saveScore("burn-skins", score);
+            console.log(`Burn score saved: ${score}`);
+          } catch (error) {
+            console.error("Error saving burn score:", error);
+          }
+          
           if (p > 0.5) {
-            setResult(`🔴 Probable quemadura (${(p * 100).toFixed(0)}%)`);
+            setResult(`🔴 Probable quemadura (${score}%)`);
           } else {
             setResult(
-              `🟢 Piel sana (${((1 - p) * 100).toFixed(0)}% confianza)`
+              `🟢 Piel sana (${(100 - score)}% confianza)`
             );
           }
           // dispose
@@ -716,11 +738,21 @@ function NoseDetector({ onClose }: { onClose: () => void }) {
           // model predicts probability of bleeding class in [0,1]
           const pred = await modelRef.current.predict(imgTensor).data();
           const p = pred[0];
+          const score = Math.round(p * 100);
+          
+          // Save score to backend
+          try {
+            await moduleService.saveScore("nose", score);
+            console.log(`Nose score saved: ${score}`);
+          } catch (error) {
+            console.error("Error saving nose score:", error);
+          }
+          
           if (p > 0.5) {
-            setResult(`🔴 Nariz con sangre (${(p * 100).toFixed(0)}%)`);
+            setResult(`🔴 Nariz con sangre (${score}%)`);
           } else {
             setResult(
-              `🟢 Nariz sana (${((1 - p) * 100).toFixed(0)}% confianza)`
+              `🟢 Nariz sana (${(100 - score)}% confianza)`
             );
           }
           // dispose
@@ -842,8 +874,19 @@ export default function Technique() {
     );
   }
 
-  const handleStartPractice = () => {
+  const handleStartPractice = async () => {
     console.log("handleStartPractice called, slug=", slug);
+    
+    // Register usage if module is mapped
+    if (slug && slugToModule[slug]) {
+      try {
+        await moduleService.registerUsage(slugToModule[slug]);
+        console.log(`Usage registered for module: ${slugToModule[slug]}`);
+      } catch (error) {
+        console.error("Error registering usage:", error);
+      }
+    }
+
     if (slug === "rcp") {
       setShowRCPDetector(true);
       return;

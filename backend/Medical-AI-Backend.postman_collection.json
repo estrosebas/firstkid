@@ -1,0 +1,603 @@
+{
+    "info": {
+        "_postman_id": "medical-ai-backend-collection",
+        "name": "Medical AI Backend",
+        "description": "Colección completa de endpoints para el backend de Medical AI.\n\n## Configuración\n1. Importa esta colección en Postman\n2. Importa el archivo de entorno (Medical-AI-Backend.postman_environment.json)\n3. Ejecuta primero \"Register User\" o \"Login\" para obtener el token\n4. El token se guardará automáticamente en las variables de entorno\n5. Los demás endpoints usarán el token automáticamente\n\n## Flujo de Prueba\n1. Health Check\n2. Register User (guarda el token automáticamente)\n3. Verify Token\n4. Register Usage\n5. Save Score\n6. Login (si necesitas un nuevo token)",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Health Check",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has success field\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData.success).to.eql(true);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has message\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData.message).to.exist;",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/health",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "health"
+                    ]
+                },
+                "description": "Verifica que el servidor esté funcionando correctamente.\n\n**Respuesta esperada:**\n```json\n{\n  \"success\": true,\n  \"message\": \"Backend API está funcionando correctamente\",\n  \"timestamp\": \"2025-10-27T01:00:00.000Z\"\n}\n```"
+            },
+            "response": []
+        },
+        {
+            "name": "Register User",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has success field\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData.success).to.eql(true);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has token\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData.data.token).to.exist;",
+                            "    ",
+                            "    // Guardar el token en las variables de entorno",
+                            "    pm.environment.set(\"authToken\", jsonData.data.token);",
+                            "    pm.environment.set(\"userId\", jsonData.data.uid);",
+                            "    pm.environment.set(\"userEmail\", jsonData.data.email);",
+                            "    ",
+                            "    console.log(\"Token guardado:\", jsonData.data.token);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has user data\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData.data.uid).to.exist;",
+                            "    pm.expect(jsonData.data.email).to.exist;",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"{{testPassword}}\"\n}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/auth/register",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "auth",
+                        "register"
+                    ]
+                },
+                "description": "Registra un nuevo usuario con email y contraseña.\n\n**Body:**\n```json\n{\n  \"email\": \"usuario@example.com\",\n  \"password\": \"miPassword123\"\n}\n```\n\n**Respuesta esperada:**\n```json\n{\n  \"success\": true,\n  \"data\": {\n    \"uid\": \"abc123xyz789...\",\n    \"email\": \"usuario@example.com\",\n    \"token\": \"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...\"\n  }\n}\n```\n\n**Nota:** El token se guarda automáticamente en las variables de entorno."
+            },
+            "response": []
+        },
+        {
+            "name": "Login",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has success field\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData.success).to.eql(true);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has token\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData.data.token).to.exist;",
+                            "    ",
+                            "    // Guardar el token en las variables de entorno",
+                            "    pm.environment.set(\"authToken\", jsonData.data.token);",
+                            "    pm.environment.set(\"userId\", jsonData.data.uid);",
+                            "    pm.environment.set(\"userEmail\", jsonData.data.email);",
+                            "    ",
+                            "    console.log(\"Token guardado:\", jsonData.data.token);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has user data\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData.data.uid).to.exist;",
+                            "    pm.expect(jsonData.data.email).to.exist;",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"{{testPassword}}\"\n}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/auth/login",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "auth",
+                        "login"
+                    ]
+                },
+                "description": "Inicia sesión con un usuario existente.\n\n**Body:**\n```json\n{\n  \"email\": \"usuario@example.com\",\n  \"password\": \"miPassword123\"\n}\n```\n\n**Respuesta esperada:**\n```json\n{\n  \"success\": true,\n  \"data\": {\n    \"uid\": \"abc123xyz789...\",\n    \"email\": \"usuario@example.com\",\n    \"token\": \"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...\"\n  }\n}\n```\n\n**Nota:** El token se guarda automáticamente en las variables de entorno."
+            },
+            "response": []
+        },
+        {
+            "name": "Verify Token",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has success field\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData.success).to.eql(true);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has user data\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData.data.uid).to.exist;",
+                            "    pm.expect(jsonData.data.email).to.exist;",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{authToken}}",
+                        "type": "text"
+                    }
+                ],
+                "url": {
+                    "raw": "{{baseUrl}}/api/auth/verify-token",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "auth",
+                        "verify-token"
+                    ]
+                },
+                "description": "Verifica que el token de autenticación sea válido.\n\n**Headers:**\n- Authorization: Bearer {token}\n\n**Respuesta esperada:**\n```json\n{\n  \"success\": true,\n  \"data\": {\n    \"uid\": \"abc123xyz789...\",\n    \"email\": \"usuario@example.com\"\n  }\n}\n```"
+            },
+            "response": []
+        },
+        {
+            "name": "Register Usage - RCP",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has success field\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData.success).to.eql(true);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has usage data\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData.data.id).to.exist;",
+                            "    pm.expect(jsonData.data.userId).to.exist;",
+                            "    pm.expect(jsonData.data.module).to.eql(\"rcp\");",
+                            "    pm.expect(jsonData.data.timestamp).to.exist;",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{authToken}}",
+                        "type": "text"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"module\": \"rcp\"\n}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/usage",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "usage"
+                    ]
+                },
+                "description": "Registra el uso del módulo RCP.\n\n**Headers:**\n- Authorization: Bearer {token}\n\n**Body:**\n```json\n{\n  \"module\": \"rcp\"\n}\n```\n\n**Módulos válidos:** rcp, nose, burn-skins\n\n**Respuesta esperada:**\n```json\n{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"usage123...\",\n    \"userId\": \"abc123xyz789...\",\n    \"module\": \"rcp\",\n    \"timestamp\": \"2025-10-27T01:00:00.000Z\"\n  }\n}\n```"
+            },
+            "response": []
+        },
+        {
+            "name": "Register Usage - Nose",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has success field\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData.success).to.eql(true);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has usage data\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData.data.module).to.eql(\"nose\");",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{authToken}}",
+                        "type": "text"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"module\": \"nose\"\n}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/usage",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "usage"
+                    ]
+                },
+                "description": "Registra el uso del módulo Nose."
+            },
+            "response": []
+        },
+        {
+            "name": "Register Usage - Burn Skins",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has success field\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData.success).to.eql(true);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has usage data\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData.data.module).to.eql(\"burn-skins\");",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{authToken}}",
+                        "type": "text"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"module\": \"burn-skins\"\n}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/usage",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "usage"
+                    ]
+                },
+                "description": "Registra el uso del módulo Burn Skins."
+            },
+            "response": []
+        },
+        {
+            "name": "Save Score - RCP",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has success field\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData.success).to.eql(true);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has score data\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData.data.id).to.exist;",
+                            "    pm.expect(jsonData.data.userId).to.exist;",
+                            "    pm.expect(jsonData.data.module).to.eql(\"rcp\");",
+                            "    pm.expect(jsonData.data.score).to.be.a('number');",
+                            "    pm.expect(jsonData.data.timestamp).to.exist;",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{authToken}}",
+                        "type": "text"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"module\": \"rcp\",\n  \"score\": 85\n}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/score",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "score"
+                    ]
+                },
+                "description": "Guarda un score para el módulo RCP.\n\n**Headers:**\n- Authorization: Bearer {token}\n\n**Body:**\n```json\n{\n  \"module\": \"rcp\",\n  \"score\": 85\n}\n```\n\n**Validaciones:**\n- module: \"rcp\", \"nose\" o \"burn-skins\"\n- score: número entre 0 y 100\n\n**Respuesta esperada:**\n```json\n{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"score123...\",\n    \"userId\": \"abc123xyz789...\",\n    \"module\": \"rcp\",\n    \"score\": 85,\n    \"timestamp\": \"2025-10-27T01:00:00.000Z\"\n  }\n}\n```"
+            },
+            "response": []
+        },
+        {
+            "name": "Save Score - Nose",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has success field\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData.success).to.eql(true);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has score data\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData.data.module).to.eql(\"nose\");",
+                            "    pm.expect(jsonData.data.score).to.be.a('number');",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{authToken}}",
+                        "type": "text"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"module\": \"nose\",\n  \"score\": 92\n}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/score",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "score"
+                    ]
+                },
+                "description": "Guarda un score para el módulo Nose."
+            },
+            "response": []
+        },
+        {
+            "name": "Save Score - Burn Skins",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has success field\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData.success).to.eql(true);",
+                            "});",
+                            "",
+                            "pm.test(\"Response has score data\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData.data.module).to.eql(\"burn-skins\");",
+                            "    pm.expect(jsonData.data.score).to.be.a('number');",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{authToken}}",
+                        "type": "text"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"module\": \"burn-skins\",\n  \"score\": 78\n}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/score",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "score"
+                    ]
+                },
+                "description": "Guarda un score para el módulo Burn Skins."
+            },
+            "response": []
+        }
+    ],
+    "event": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    ""
+                ]
+            }
+        },
+        {
+            "listen": "test",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    ""
+                ]
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:3000",
+            "type": "string"
+        }
+    ]
+}

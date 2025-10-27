@@ -1,38 +1,52 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation, Link } from "react-router-dom";
-import { Mail, Lock } from "lucide-react";
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { Mail, Lock, User } from "lucide-react";
 import { authService } from "../services/auth.service";
 import loginLogo from "../assets/figma/logo.png";
 
-export default function Login() {
+export default function Register() {
   const navigate = useNavigate();
-  const location = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (authService.isAuthenticated()) {
-      navigate("/home", { replace: true });
-    }
-  }, [navigate]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+
+    // Validations
+    if (!email || !password || !confirmPassword) {
+      setError("Todos los campos son requeridos");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Las contraseñas no coinciden");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("La contraseña debe tener al menos 6 caracteres");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const result = await authService.login({ email: email.trim(), password });
+      const result = await authService.register({
+        email: email.trim(),
+        password,
+        displayName: displayName.trim() || undefined,
+      });
 
       if (result.success && result.user) {
-        // Navigate to the page they tried to access, or home
-        const from = (location.state as any)?.from?.pathname || "/home";
-        navigate(from, { replace: true });
+        // Navigate to home on successful registration
+        navigate("/home");
       } else {
-        setError(result.error || "Error al iniciar sesión");
+        setError(result.error || "Error al registrar usuario");
       }
     } catch (err: any) {
       setError(err.message || "Error al conectar con el servidor");
@@ -50,9 +64,23 @@ export default function Login() {
           style={{ width: 200, height: 200, objectFit: "cover" }}
         />
       </div>
-      <h2 style={{ marginTop: 20 }}>Iniciar sesión</h2>
+      <h2 style={{ marginTop: 20 }}>Crear cuenta</h2>
       <form style={{ marginTop: 20 }} onSubmit={submit}>
         <div>
+          <label style={{ display: "block", marginBottom: 6, fontWeight: 600 }}>
+            Nombre (opcional)
+          </label>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <User style={{ marginRight: 8 }} />
+            <input
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              style={{ flex: 1, padding: 8, borderRadius: 6 }}
+            />
+          </div>
+        </div>
+
+        <div style={{ marginTop: 12 }}>
           <label style={{ display: "block", marginBottom: 6, fontWeight: 600 }}>
             Correo electrónico
           </label>
@@ -84,6 +112,22 @@ export default function Login() {
           </div>
         </div>
 
+        <div style={{ marginTop: 12 }}>
+          <label style={{ display: "block", marginBottom: 6, fontWeight: 600 }}>
+            Confirmar contraseña
+          </label>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <Lock style={{ marginRight: 8 }} />
+            <input
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              type="password"
+              required
+              style={{ flex: 1, padding: 8, borderRadius: 6 }}
+            />
+          </div>
+        </div>
+
         {error ? (
           <div style={{ color: "#cc0033", marginTop: 12 }}>{error}</div>
         ) : null}
@@ -105,7 +149,7 @@ export default function Login() {
               cursor: loading ? "not-allowed" : "pointer",
             }}
           >
-            {loading ? "Iniciando..." : "Iniciar"}
+            {loading ? "Creando cuenta..." : "Crear cuenta"}
           </button>
         </div>
       </form>
@@ -118,7 +162,7 @@ export default function Login() {
         }}
       >
         <Link
-          to="/register"
+          to="/login"
           style={{
             background: "none",
             border: "none",
@@ -126,7 +170,7 @@ export default function Login() {
             textDecoration: "none",
           }}
         >
-          ¿No tienes una cuenta? Regístrate
+          ¿Ya tienes una cuenta? Inicia sesión
         </Link>
       </div>
     </div>
