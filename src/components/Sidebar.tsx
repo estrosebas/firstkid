@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Bandage, Phone, Settings, LogOut, BarChart3 } from "lucide-react";
 import "../styles/sidebar.css";
 import { useNavigate } from "react-router-dom";
@@ -12,6 +12,26 @@ export default function Sidebar({
   onClose: () => void;
 }) {
   const navigate = useNavigate();
+
+  // Lock body scroll when sidebar is open
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+      document.body.style.position = "fixed";
+      document.body.style.width = "100%";
+    } else {
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.width = "";
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.width = "";
+    };
+  }, [open]);
 
   function go(path: string) {
     try {
