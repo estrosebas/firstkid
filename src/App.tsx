@@ -4,6 +4,7 @@ import Register from "./pages/Register";
 import MainLayout from "./layouts/MainLayout";
 import Home from "./pages/Home";
 import Technique from "./pages/Technique";
+import Panel from "./pages/Panel";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
@@ -34,6 +35,16 @@ export default function App() {
             <ProtectedRoute>
               <MainLayout>
                 <Technique />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/panel"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <Panel />
               </MainLayout>
             </ProtectedRoute>
           }

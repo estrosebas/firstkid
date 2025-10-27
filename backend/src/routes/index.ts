@@ -2,6 +2,7 @@ import { Router } from 'express';
 import authRoutes from './auth.routes';
 import usageRoutes from './usage.routes';
 import scoreRoutes from './score.routes';
+import statsRoutes from './stats.routes';
 
 const router = Router();
 
@@ -18,5 +19,8 @@ router.use('/usage', usageRoutes);
 
 // Rutas de scores
 router.use('/score', scoreRoutes);
+
+// Rutas de estadísticas
+router.use('/stats', statsRoutes);
 
 export default router;

@@ -1,5 +1,5 @@
 import React from "react";
-import { Bandage, Phone, Settings, LogOut } from "lucide-react";
+import { Bandage, Phone, Settings, LogOut, BarChart3 } from "lucide-react";
 import "../styles/sidebar.css";
 import { useNavigate } from "react-router-dom";
 import sidebarLogo from "../assets/figma/sidebar/sidebar_logo.png";
@@ -61,6 +61,17 @@ export default function Sidebar({
           >
             <Phone size={16} style={{ marginRight: 8 }} />
             Emergencia
+          </a>
+
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              go("/panel");
+            }}
+          >
+            <BarChart3 size={16} style={{ marginRight: 8 }} />
+            Panel de Estadísticas
           </a>
 
           <a
